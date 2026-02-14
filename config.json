@@ -1,0 +1,81 @@
+{
+  "email": {
+    "recipients": ["nina.m.mross@gmail.com"],
+    "bcc": "et-scout-bcc@kaay.me",
+    "from": "et_scout@agentmail.to",
+    "top_count": 10
+  },
+  "search": {
+    "job_titles": [
+      "Operations Manager",
+      "Operations Director",
+      "Program Manager",
+      "Production Manager",
+      "Studio Operations",
+      "Studio Manager",
+      "Creative Operations Manager",
+      "Supply Chain Manager",
+      "Vendor Operations",
+      "Business Operations"
+    ],
+    "locations": [
+      "Santa Monica, CA",
+      "Venice, CA",
+      "Culver City, CA",
+      "Playa Vista, CA",
+      "Marina del Rey, CA",
+      "El Segundo, CA",
+      "Manhattan Beach, CA",
+      "Hermosa Beach, CA",
+      "Redondo Beach, CA",
+      "West Los Angeles, CA",
+      "Los Angeles, CA"
+    ],
+    "industries_priority": [
+      "vegan",
+      "plant-based",
+      "food",
+      "beverage",
+      "film",
+      "television",
+      "streaming",
+      "entertainment",
+      "design studio",
+      "art studio",
+      "creative agency",
+      "architecture",
+      "interior design"
+    ],
+    "min_salary": 100000,
+    "target_companies": [
+      "Beyond Meat",
+      "Google",
+      "YouTube",
+      "Snap",
+      "Snapchat",
+      "Hulu",
+      "Disney",
+      "Amazon",
+      "MGM Studios",
+      "Sony Pictures",
+      "Apple",
+      "Netflix"
+    ],
+    "exclude_keywords": [
+      "military",
+      "defense",
+      "weapons",
+      "sales rep",
+      "entry level",
+      "intern"
+    ]
+  },
+  "scoring": {
+    "location_match": 3,
+    "title_match": 3,
+    "company_match": 5,
+    "industry_match": 4,
+    "salary_above_min": 3,
+    "creative_industry": 2
+  }
+}

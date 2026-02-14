@@ -1,0 +1,11 @@
+*.db
+*.pyc
+__pycache__/
+.env
+*.log
+raw_jobs.json
+search_queries.json
+validated_jobs.json
+venv/
+.vscode/
+.DS_Store

@@ -50,7 +50,13 @@ def validate_job_url(url: str, timeout: int = 10) -> Dict:
             'applications closed',
             'job is closed',
             'expired',
-            'this job is no longer available'
+            'this job is no longer available',
+            'job not found',
+            'may have been taken down',
+            'no longer available',
+            'has been removed',
+            'posting has closed',
+            'not accepting applications'
         ]
         
         for indicator in closed_indicators:

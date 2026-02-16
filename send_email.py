@@ -8,6 +8,7 @@ from datetime import datetime
 sys.path.insert(0, '/home/ck/.openclaw/workspace')
 from agentmail import AgentMail
 from db import JobDatabase
+from validate_jobs import validate_jobs
 
 # Load config
 with open('config.json', 'r') as f:
@@ -96,10 +97,39 @@ def format_job_email(jobs, count=10):
     
     return text, html
 
-def send_job_email(jobs, api_key_file='/home/ck/.openclaw/workspace/agentmail_api_key'):
-    """Send job results via AgentMail"""
+def send_job_email(jobs, api_key_file='/home/ck/.openclaw/workspace/agentmail_api_key', skip_validation=False):
+    """
+    Send job results via AgentMail
+    
+    Args:
+        jobs: List of job dicts to send
+        api_key_file: Path to AgentMail API key
+        skip_validation: If True, skip re-validation (jobs already validated)
+    """
     
     config = CONFIG['email']
+    db = JobDatabase()
+    
+    # Re-validate jobs before sending (unless explicitly skipped)
+    if not skip_validation:
+        print(f"\n🔍 Re-validating {len(jobs)} jobs before sending...")
+        valid_jobs = validate_jobs(jobs, delay=1.0)
+        
+        invalid_count = len(jobs) - len(valid_jobs)
+        if invalid_count > 0:
+            print(f"⚠️  {invalid_count} jobs expired/invalid - excluding from email")
+            
+            # Mark invalid jobs as sent so we don't retry
+            invalid_urls = [job['url'] for job in jobs if job not in valid_jobs]
+            db.mark_jobs_sent(invalid_urls)
+            print(f"Marked {len(invalid_urls)} invalid jobs as sent")
+        
+        if not valid_jobs:
+            print("❌ No valid jobs remaining after validation")
+            return False
+        
+        jobs = valid_jobs[:config['top_count']]
+        print(f"✅ {len(jobs)} valid jobs will be sent\n")
     
     # Read API key
     with open(api_key_file, 'r') as f:
@@ -107,7 +137,6 @@ def send_job_email(jobs, api_key_file='/home/ck/.openclaw/workspace/agentmail_ap
     
     # Initialize client
     client = AgentMail(api_key=api_key)
-    db = JobDatabase()
     
     # Format email
     text, html = format_job_email(jobs, count=config['top_count'])
@@ -153,21 +182,21 @@ def send_job_email(jobs, api_key_file='/home/ck/.openclaw/workspace/agentmail_ap
 if __name__ == '__main__':
     db = JobDatabase()
     
-    # Get unsent jobs from database
-    jobs = db.get_unsent_jobs(limit=CONFIG['email']['top_count'])
+    # Get unsent jobs from database (get more than we need since some may be invalid)
+    jobs = db.get_unsent_jobs(limit=CONFIG['email']['top_count'] * 3)
     
     if not jobs:
         print("No unsent jobs found in database")
         sys.exit(0)
     
-    print(f"Found {len(jobs)} unsent jobs")
+    print(f"Found {len(jobs)} unsent jobs from database")
     
-    # Send email
+    # Send email (will auto-validate inside the function)
     success = send_job_email(jobs)
     
     if success:
         print("\n✅ Job email sent successfully")
         sys.exit(0)
     else:
-        print("\n❌ Failed to send job email")
+        print("\n⚠️  No valid jobs to send or email failed")
         sys.exit(1)
